@@ -1,7 +1,7 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState } from "react";
 
-import Tasks from './components/Tasks/Tasks';
-import NewTask from './components/NewTask/NewTask';
+import Tasks from "./components/Tasks/Tasks";
+import NewTask from "./components/NewTask/NewTask";
 
 function App() {
   const [isLoading, setIsLoading] = useState(false);
@@ -12,17 +12,20 @@ function App() {
     setIsLoading(true);
     setError(null);
     try {
-      const response = await fetch('https://customhook3-default-rtdb.firebaseio.com/tasks.json');
-      if (!response.ok) throw new Error('Request failed!');
+      //^ Grab JSON data from Firebase back end
+      const response = await fetch(
+        "https://customhook3-default-rtdb.firebaseio.com/tasks.json"
+      );
+      if (!response.ok) throw new Error("Request failed!");
       const data = await response.json();
-
+      //^ Load the tasks into the array below, then update the stateful one
       const loadedTasks = [];
       for (const taskKey in data) {
         loadedTasks.push({ id: taskKey, text: data[taskKey].text });
       }
-      setTasks(loadedTasks);
+      setTasks(loadedTasks); // update stateful array
     } catch (err) {
-      setError(err.message || 'Something went wrong!');
+      setError(err.message || "Something went wrong!");
     }
     setIsLoading(false);
   };
