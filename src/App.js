@@ -2,42 +2,38 @@ import React, { useEffect, useState } from "react";
 
 import Tasks from "./components/Tasks/Tasks";
 import NewTask from "./components/NewTask/NewTask";
-
+import useFetch from "./hooks/useFetch";
 function App() {
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState(null);
-  const [tasks, setTasks] = useState([]);
+  const [tasks, setTasks] = useState([]); // stateful task list
+  const {
+    isLoading,
+    error,
+    sendRequest: fetchTasks, // rename the imported sendRequest ƒ() to be more informative
+  } = useFetch(
+    { url: "https://customhook3-default-rtdb.firebaseio.com/tasks.json" },
+    transformTasks
+  ); // Import the useFetch states and methods
 
-  const fetchTasks = async (taskText) => {
-    setIsLoading(true);
-    setError(null);
-    try {
-      //^ Grab JSON data from Firebase back end
-      const response = await fetch(
-        "https://customhook3-default-rtdb.firebaseio.com/tasks.json"
-      );
-      if (!response.ok) throw new Error("Request failed!");
-      const data = await response.json();
-      //^ Load the tasks into the array below, then update the stateful one
-      const loadedTasks = [];
-      for (const taskKey in data) {
-        loadedTasks.push({ id: taskKey, text: data[taskKey].text });
-      }
-      setTasks(loadedTasks); // update stateful array
-    } catch (err) {
-      setError(err.message || "Something went wrong!");
-    }
-    setIsLoading(false);
-  };
-  // Run the fetchTasks function on starup to grab any existing entries
+  // On startup, fetch any existing tasks already saved on Firebase
   useEffect(() => {
     fetchTasks();
   }, []);
 
-  // Add a task to the stateful tasks array
+  // On submission, add a task to the stateful tasks array
   const taskAddHandler = (task) => {
     setTasks((prevTasks) => prevTasks.concat(task));
   };
+
+  // Component specific success function
+  // This is what we do if the useFetch custom hook succeeds in pulling data down from Firebase
+  function transformTasks(tasksObj) {
+    const loadedTasks = [];
+    // Fill up an array with objects describing each saved task in Firebase
+    for (const taskKey in tasksObj) {
+      loadedTasks.push({ id: taskKey, text: tasksObj[taskKey].text });
+    }
+    setTasks(loadedTasks); // update the stateful tasks array
+  }
 
   return (
     <React.Fragment>
