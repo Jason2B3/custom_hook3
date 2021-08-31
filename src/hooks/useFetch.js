@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useCallback } from "react";
 import ReactDOM from "react-dom";
 /**
  *
@@ -8,7 +8,7 @@ const useFetch = (requestConfig, applyDataFN, errorFN = () => {}) => {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
 
-  const sendRequest = async (taskText) => {
+  const sendRequest = useCallback(async (taskText) => {
     setIsLoading(true);
     setError(null);
     try {
@@ -30,7 +30,7 @@ const useFetch = (requestConfig, applyDataFN, errorFN = () => {}) => {
     }
 
     setIsLoading(false);
-  };
+  },[]);
   // Give components using this hook access to...
   // error/loading states + sendRequest function
   return { isLoading, error, sendRequest };
